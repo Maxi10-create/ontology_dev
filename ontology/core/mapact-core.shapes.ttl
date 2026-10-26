@@ -1,0 +1,94 @@
+@prefix mp:    <https://w3id.org/mapact/core#> .
+@prefix mps:   <https://w3id.org/mapact/core/shapes#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix pplan: <http://purl.org/net/p-plan#> .
+
+# Geschlossene Prüfungen für Prozessmodelle (Gate L4 im Prozessdokument).
+# Sie gelten für jedes Domänenmodul, nicht nur für die Ausschreibung.
+
+mps:LabelShape a sh:NodeShape ;
+    sh:targetClass mp:ProcessModel , mp:Phase , mp:Step , mp:Role , mp:InformationObject ,
+                   mp:ValueType , mp:Calculation , mp:Condition , mp:Engine ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:languageIn ( "de" ) ;
+        sh:message "Jedes Modellelement braucht ein deutsches Label."@de
+    ] .
+
+mps:PhaseShape a sh:NodeShape ;
+    sh:targetClass mp:Phase ;
+    sh:property [
+        sh:path mp:phaseOrder ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Jede Phase braucht genau eine Reihenfolge."@de
+    ] .
+
+mps:StepShape a sh:NodeShape ;
+    sh:targetClass mp:Step ;
+    sh:property [
+        sh:path mp:inPhase ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class mp:Phase ;
+        sh:message "Jeder Schritt gehört zu genau einer Phase."@de
+    ] , [
+        sh:path pplan:isStepOfPlan ;
+        sh:minCount 1 ;
+        sh:class mp:ProcessModel ;
+        sh:message "Jeder Schritt gehört zu einem Prozessmodell."@de
+    ] , [
+        sh:path [ sh:alternativePath ( mp:performedBy mp:decidedBy ) ] ;
+        sh:minCount 1 ;
+        sh:class mp:Role ;
+        sh:message "Jeder Schritt braucht mindestens eine ausführende Rolle."@de
+    ] .
+
+mps:DecisionShape a sh:NodeShape ;
+    sh:targetClass mp:Decision ;
+    sh:property [
+        sh:path [ sh:inversePath mp:fromStep ] ;
+        sh:minCount 2 ;
+        sh:message "Eine Entscheidung braucht mindestens zwei ausgehende Übergänge."@de
+    ] .
+
+mps:TransitionShape a sh:NodeShape ;
+    sh:targetClass mp:Transition ;
+    sh:property [ sh:path mp:fromStep ; sh:minCount 1 ; sh:maxCount 1 ; sh:class mp:Step ] ,
+                [ sh:path mp:toStep ; sh:minCount 1 ; sh:maxCount 1 ; sh:class mp:Step ] ,
+                [ sh:path mp:guard ; sh:datatype xsd:string ] ,
+                [ sh:path mp:isLoopBack ; sh:maxCount 1 ; sh:datatype xsd:boolean ] .
+
+mps:CalculationShape a sh:NodeShape ;
+    sh:targetClass mp:Calculation ;
+    sh:property [
+        sh:path mp:formula ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:message "Jede Rechenregel braucht genau eine Formel."@de
+    ] , [
+        sh:path mp:operand ;
+        sh:minCount 1 ;
+        sh:class mp:ValueType ;
+        sh:message "Jede Rechenregel verwendet mindestens eine Wertgröße."@de
+    ] , [
+        sh:path [ sh:inversePath mp:derivedBy ] ;
+        sh:minCount 1 ;
+        sh:message "Jede Rechenregel muss eine Wertgröße erzeugen."@de
+    ] .
+
+mps:ValueTypeShape a sh:NodeShape ;
+    sh:targetClass mp:ValueType ;
+    sh:property [
+        sh:path mp:unit ;
+        sh:minCount 1 ;
+        sh:message "Jede Wertgröße braucht eine Einheit."@de
+    ] .
+
+mps:EngineShape a sh:NodeShape ;
+    sh:targetClass mp:Engine ;
+    sh:property [ sh:path mp:supportsStep ; sh:minCount 1 ; sh:class mp:Step ] ,
+                [ sh:path mp:implementedIn ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ,
+                [ sh:path mp:engineOutput ; sh:minCount 1 ; sh:class mp:InformationObject ] .

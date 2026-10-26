@@ -1,0 +1,319 @@
+@prefix mp:      <https://w3id.org/mapact/core#> .
+@prefix aus:     <https://w3id.org/mapact/ausschreibung#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix pplan:   <http://purl.org/net/p-plan#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Domänenmodul: Ausschreibungs- und Angebotsprozess für Bauleistungen, aus neutraler Außensicht.
+# Abstrakt: keine Firmen, keine Beträge, keine Projektdaten. Konkrete Fälle kommen später
+# über die Fallebene (mp:Case) und werden nur mit lokalen LLMs verarbeitet.
+
+<https://w3id.org/mapact/ausschreibung>
+    a owl:Ontology ;
+    owl:imports <https://w3id.org/mapact/core> ;
+    rdfs:label "Mapact Modul Ausschreibung und Angebot"@de ;
+    owl:versionInfo "0.1.0" .
+
+aus:Ausschreibungsprozess a mp:ProcessModel ;
+    rdfs:label "Ausschreibung und Angebot"@de ;
+    skos:definition "Vom Bedarf des Auftraggebers über Leistungsbeschreibung, Angebote und Prüfung bis zur Vergabe."@de ;
+    mp:hasPhase aus:P1_Bedarf , aus:P2_Ausschreibung , aus:P3_Angebot , aus:P4_Vergabe , aus:P5_Ausfuehrung .
+
+# ---------------------------------------------------------------- Phasen
+
+aus:P1_Bedarf a mp:Phase ; rdfs:label "Bedarf und Planung"@de ; mp:phaseOrder 1 .
+aus:P2_Ausschreibung a mp:Phase ; rdfs:label "Ausschreibung"@de ; mp:phaseOrder 2 .
+aus:P3_Angebot a mp:Phase ; rdfs:label "Angebotserstellung"@de ; mp:phaseOrder 3 .
+aus:P4_Vergabe a mp:Phase ; rdfs:label "Prüfung und Vergabe"@de ; mp:phaseOrder 4 .
+aus:P5_Ausfuehrung a mp:Phase ;
+    rdfs:label "Ausführung und Abrechnung"@de ;
+    rdfs:comment "Noch nicht modelliert; Platzhalter für Auftrag, Nachträge und Rechnungen."@de ;
+    mp:phaseOrder 5 .
+
+# ---------------------------------------------------------------- Rollen
+
+aus:Auftraggeber a mp:Role ;
+    rdfs:label "Auftraggeber"@de ;
+    skos:altLabel "Bauherr"@de ;
+    skos:definition "Wer die Leistung braucht, bezahlt und vergibt."@de .
+
+aus:Planer a mp:Role ;
+    rdfs:label "Planer"@de ;
+    skos:altLabel "Architekt"@de , "Bauleitung"@de ;
+    skos:definition "Wer im Auftrag des Auftraggebers plant, die Leistung beschreibt und Angebote fachlich prüft."@de .
+
+aus:Bieter a mp:Role ;
+    rdfs:label "Bieter"@de ;
+    skos:altLabel "Handwerksbetrieb"@de , "Anbieter"@de ;
+    skos:definition "Betrieb, der die Leistung kalkuliert und anbietet; nach Vergabe der Auftragnehmer."@de .
+
+# ---------------------------------------------------------------- Informationsobjekte
+
+aus:Bedarfsbeschreibung a mp:InformationObject ; rdfs:label "Bedarfsbeschreibung"@de .
+aus:Planunterlagen a mp:InformationObject ; rdfs:label "Planunterlagen"@de ; skos:altLabel "Ausführungspläne"@de .
+
+aus:Leistungsverzeichnis a mp:InformationObject ;
+    rdfs:label "Leistungsverzeichnis"@de ;
+    skos:altLabel "LV"@de ;
+    skos:definition "Gegliederte Beschreibung der geforderten Leistung in Abschnitten und Positionen mit Mengen."@de ;
+    mp:hasPart aus:LVAbschnitt , aus:Vertragsbedingungen .
+
+aus:LVAbschnitt a mp:InformationObject ;
+    rdfs:label "LV-Abschnitt"@de ;
+    mp:hasPart aus:LVPosition .
+
+aus:LVPosition a mp:InformationObject ;
+    rdfs:label "LV-Position"@de ;
+    skos:definition "Einzelne Leistung mit Ordnungszahl, Kurztext, Langtext, Menge und Einheit."@de ;
+    mp:hasValueType aus:Menge .
+
+aus:Vertragsbedingungen a mp:InformationObject ; rdfs:label "Vertragsbedingungen"@de ; skos:altLabel "Vorbemerkungen"@de .
+
+aus:Angebotsaufforderung a mp:InformationObject ;
+    rdfs:label "Angebotsaufforderung"@de ;
+    skos:altLabel "Anfrage"@de ;
+    mp:hasPart aus:Leistungsverzeichnis .
+
+aus:Kalkulation a mp:InformationObject ;
+    rdfs:label "Kalkulation"@de ;
+    skos:definition "Interne Herleitung der Preise des Bieters; für Außenstehende meist nicht sichtbar."@de ;
+    mp:hasValueType aus:Zeitansatz , aus:Mittellohn , aus:Lohnkosten , aus:Materialkosten , aus:Geraetekosten , aus:Zuschlagssatz .
+
+aus:Regiesatzliste a mp:InformationObject ;
+    rdfs:label "Regiesatzliste"@de ;
+    skos:definition "Stundensätze für Personal und Geräte, die außerhalb der LV-Positionen nach Aufwand abgerechnet werden."@de ;
+    mp:hasValueType aus:Regiestundensatz .
+
+aus:Angebot a mp:InformationObject ;
+    rdfs:label "Angebot"@de ;
+    mp:hasPart aus:Angebotsposition ;
+    mp:hasValueType aus:Nachlasssatz , aus:AngebotssummeNetto , aus:Mehrwertsteuersatz , aus:AngebotssummeBrutto .
+
+aus:Angebotsposition a mp:InformationObject ;
+    rdfs:label "Angebotsposition"@de ;
+    skos:definition "Bepreiste LV-Position eines Bieters, optional mit Anmerkung oder Abweichung."@de ;
+    mp:hasValueType aus:Einheitspreis , aus:Positionsbetrag .
+
+aus:Rueckfrage a mp:InformationObject ; rdfs:label "Rückfrage"@de ; skos:altLabel "Bieterfrage"@de .
+
+aus:Preisspiegel a mp:InformationObject ;
+    rdfs:label "Preisspiegel"@de ;
+    skos:definition "Gegenüberstellung der Angebote je Position, Abschnitt und gesamt."@de ;
+    mp:hasValueType aus:AbweichungVomMedian .
+
+aus:Vergabeentscheidung a mp:InformationObject ; rdfs:label "Vergabeentscheidung"@de .
+aus:Auftrag a mp:InformationObject ; rdfs:label "Auftrag"@de ; skos:altLabel "Werkvertrag"@de .
+
+# ---------------------------------------------------------------- Schritte
+
+aus:S01_BedarfKlaeren a mp:Step ;
+    rdfs:label "Bedarf klären"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P1_Bedarf ;
+    mp:performedBy aus:Auftraggeber ;
+    mp:hasOutput aus:Bedarfsbeschreibung .
+
+aus:S02_Planen a mp:Step ;
+    rdfs:label "Planen"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P1_Bedarf ;
+    mp:performedBy aus:Planer ;
+    mp:hasInput aus:Bedarfsbeschreibung ;
+    mp:hasOutput aus:Planunterlagen .
+
+aus:S03_LeistungBeschreiben a mp:Step ;
+    rdfs:label "Leistung beschreiben"@de ;
+    skos:altLabel "LV erstellen"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P2_Ausschreibung ;
+    mp:performedBy aus:Planer ;
+    mp:hasInput aus:Planunterlagen ;
+    mp:hasOutput aus:Leistungsverzeichnis ;
+    mp:completionCondition aus:C_LVVollstaendig .
+
+aus:S04_ZurAbgabeAuffordern a mp:Step ;
+    rdfs:label "Zur Angebotsabgabe auffordern"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P2_Ausschreibung ;
+    mp:performedBy aus:Auftraggeber , aus:Planer ;
+    mp:hasInput aus:Leistungsverzeichnis ;
+    mp:hasOutput aus:Angebotsaufforderung .
+
+aus:S05_AnfragePruefen a mp:Decision ;
+    rdfs:label "Anfrage prüfen"@de ;
+    skos:definition "Bieter entscheidet nach Machbarkeit, Kapazität und Risiko, ob er anbietet."@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P3_Angebot ;
+    mp:decidedBy aus:Bieter ;
+    mp:hasInput aus:Angebotsaufforderung ;
+    mp:hasOutput aus:Rueckfrage .
+
+aus:S06_Kalkulieren a mp:Step ;
+    rdfs:label "Kalkulieren"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P3_Angebot ;
+    mp:performedBy aus:Bieter ;
+    mp:hasInput aus:Leistungsverzeichnis , aus:Regiesatzliste ;
+    mp:hasOutput aus:Kalkulation .
+
+aus:S07_AngebotErstellen a mp:Step ;
+    rdfs:label "Angebot erstellen und einreichen"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P3_Angebot ;
+    mp:performedBy aus:Bieter ;
+    mp:hasInput aus:Kalkulation , aus:Leistungsverzeichnis ;
+    mp:hasOutput aus:Angebot , aus:Regiesatzliste ;
+    mp:completionCondition aus:C_AngebotVollstaendig .
+
+aus:S08_AngebotePruefen a mp:Step ;
+    rdfs:label "Angebote prüfen"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P4_Vergabe ;
+    mp:performedBy aus:Planer ;
+    mp:hasInput aus:Angebot , aus:Leistungsverzeichnis ;
+    mp:completionCondition aus:C_AngebotVollstaendig , aus:C_LVUnveraendert .
+
+aus:S09_AngeboteVergleichen a mp:Step ;
+    rdfs:label "Angebote vergleichen"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P4_Vergabe ;
+    mp:performedBy aus:Planer ;
+    mp:hasInput aus:Angebot , aus:Leistungsverzeichnis ;
+    mp:hasOutput aus:Preisspiegel .
+
+aus:S10_Nachverhandeln a mp:Decision ;
+    rdfs:label "Nachverhandeln?"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P4_Vergabe ;
+    mp:decidedBy aus:Auftraggeber ;
+    mp:hasInput aus:Preisspiegel .
+
+aus:S11_AngebotUeberarbeiten a mp:Step ;
+    rdfs:label "Angebot überarbeiten"@de ;
+    skos:definition "Bieter legt eine neue Angebotsversion vor, etwa mit Nachlass oder geänderten Positionen."@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P4_Vergabe ;
+    mp:performedBy aus:Bieter ;
+    mp:hasInput aus:Angebot , aus:Preisspiegel ;
+    mp:hasOutput aus:Angebot .
+
+aus:S12_Vergeben a mp:Step ;
+    rdfs:label "Vergeben"@de ;
+    pplan:isStepOfPlan aus:Ausschreibungsprozess ;
+    mp:inPhase aus:P4_Vergabe ;
+    mp:performedBy aus:Auftraggeber ;
+    mp:hasInput aus:Preisspiegel , aus:Angebot ;
+    mp:hasOutput aus:Vergabeentscheidung , aus:Auftrag .
+
+# ---------------------------------------------------------------- Übergänge
+
+aus:T01 a mp:Transition ; mp:fromStep aus:S01_BedarfKlaeren ; mp:toStep aus:S02_Planen .
+aus:T02 a mp:Transition ; mp:fromStep aus:S02_Planen ; mp:toStep aus:S03_LeistungBeschreiben .
+aus:T03 a mp:Transition ; mp:fromStep aus:S03_LeistungBeschreiben ; mp:toStep aus:S04_ZurAbgabeAuffordern .
+aus:T04 a mp:Transition ; mp:fromStep aus:S04_ZurAbgabeAuffordern ; mp:toStep aus:S05_AnfragePruefen .
+aus:T05 a mp:Transition ; mp:fromStep aus:S05_AnfragePruefen ; mp:toStep aus:S06_Kalkulieren ;
+    mp:guard "Bieter gibt ein Angebot ab" .
+aus:T05b a mp:Transition ; mp:fromStep aus:S05_AnfragePruefen ; mp:toStep aus:S04_ZurAbgabeAuffordern ;
+    mp:guard "Rückfrage des Bieters wird beantwortet" ; mp:isLoopBack true .
+aus:T06 a mp:Transition ; mp:fromStep aus:S06_Kalkulieren ; mp:toStep aus:S07_AngebotErstellen .
+aus:T07 a mp:Transition ; mp:fromStep aus:S07_AngebotErstellen ; mp:toStep aus:S08_AngebotePruefen .
+aus:T08 a mp:Transition ; mp:fromStep aus:S08_AngebotePruefen ; mp:toStep aus:S09_AngeboteVergleichen .
+aus:T09 a mp:Transition ; mp:fromStep aus:S09_AngeboteVergleichen ; mp:toStep aus:S10_Nachverhandeln .
+aus:T10 a mp:Transition ; mp:fromStep aus:S10_Nachverhandeln ; mp:toStep aus:S11_AngebotUeberarbeiten ;
+    mp:guard "Auftraggeber verhandelt nach" .
+aus:T11 a mp:Transition ; mp:fromStep aus:S11_AngebotUeberarbeiten ; mp:toStep aus:S08_AngebotePruefen ;
+    mp:guard "Neue Angebotsversion liegt vor" ; mp:isLoopBack true .
+aus:T12 a mp:Transition ; mp:fromStep aus:S10_Nachverhandeln ; mp:toStep aus:S12_Vergeben ;
+    mp:guard "Keine weitere Nachverhandlung" .
+
+# ---------------------------------------------------------------- Bedingungen
+
+aus:C_LVVollstaendig a mp:Condition ;
+    rdfs:label "LV vollständig"@de ;
+    skos:definition "Jede LV-Position hat Ordnungszahl, Kurztext, Menge und Einheit; Ordnungszahlen sind eindeutig."@de .
+
+aus:C_AngebotVollstaendig a mp:Condition ;
+    rdfs:label "Angebot vollständig"@de ;
+    skos:definition "Jede LV-Position hat im Angebot einen Einheitspreis."@de .
+
+aus:C_LVUnveraendert a mp:Condition ;
+    rdfs:label "LV unverändert übernommen"@de ;
+    skos:definition "Der Bieter hat Kurztext, Menge und Einheit nicht verändert, oder die Abweichung ist ausdrücklich als Anmerkung gekennzeichnet."@de .
+
+# ---------------------------------------------------------------- Wertgrößen
+
+aus:Menge a mp:ValueType ; rdfs:label "Menge"@de ; mp:unit "LV-Einheit (m², m³, St, psch …)" .
+aus:Zeitansatz a mp:ValueType ; rdfs:label "Zeitansatz"@de ; mp:unit "h je Einheit" .
+aus:Mittellohn a mp:ValueType ; rdfs:label "Mittellohn"@de ; skos:altLabel "Kalkulationslohn"@de ; mp:unit "EUR/h" .
+aus:Lohnkosten a mp:ValueType ; rdfs:label "Lohnkosten"@de ; mp:unit "EUR je Einheit" ; mp:derivedBy aus:R_Lohnkosten .
+aus:Materialkosten a mp:ValueType ; rdfs:label "Materialkosten"@de ; mp:unit "EUR je Einheit" .
+aus:Geraetekosten a mp:ValueType ; rdfs:label "Gerätekosten"@de ; mp:unit "EUR je Einheit" .
+aus:Zuschlagssatz a mp:ValueType ;
+    rdfs:label "Zuschlagssatz"@de ;
+    skos:definition "Aufschlag für Baustellengemeinkosten, allgemeine Geschäftskosten, Wagnis und Gewinn."@de ;
+    mp:unit "Anteil (0–1)" .
+aus:Einheitspreis a mp:ValueType ; rdfs:label "Einheitspreis"@de ; skos:altLabel "EP"@de ; mp:unit "EUR je Einheit" ; mp:derivedBy aus:R_Einheitspreis .
+aus:Positionsbetrag a mp:ValueType ; rdfs:label "Positionsbetrag"@de ; skos:altLabel "Gesamtbetrag"@de , "GB"@de ; mp:unit "EUR" ; mp:derivedBy aus:R_Positionsbetrag .
+aus:Regiestundensatz a mp:ValueType ; rdfs:label "Regiestundensatz"@de ; mp:unit "EUR/h" .
+aus:Nachlasssatz a mp:ValueType ; rdfs:label "Nachlasssatz"@de ; mp:unit "Anteil (0–1)" .
+aus:AngebotssummeNetto a mp:ValueType ; rdfs:label "Angebotssumme netto"@de ; mp:unit "EUR" ; mp:derivedBy aus:R_SummeNetto .
+aus:Mehrwertsteuersatz a mp:ValueType ; rdfs:label "Mehrwertsteuersatz"@de ; mp:unit "Anteil (0–1)" .
+aus:AngebotssummeBrutto a mp:ValueType ; rdfs:label "Angebotssumme brutto"@de ; mp:unit "EUR" ; mp:derivedBy aus:R_SummeBrutto .
+aus:AbweichungVomMedian a mp:ValueType ; rdfs:label "Abweichung vom Median"@de ; mp:unit "Anteil" ; mp:derivedBy aus:R_AbweichungMedian .
+
+# ---------------------------------------------------------------- Rechenregeln
+
+aus:R_Lohnkosten a mp:Calculation ;
+    rdfs:label "Lohnkosten je Einheit"@de ;
+    mp:formula "Lohnkosten = Zeitansatz × Mittellohn" ;
+    mp:operand aus:Zeitansatz , aus:Mittellohn .
+
+aus:R_Einheitspreis a mp:Calculation ;
+    rdfs:label "Einheitspreis aus Kalkulation"@de ;
+    rdfs:comment "Vereinfachtes Zuschlagsschema; vom Fachexperten zu bestätigen."@de ;
+    mp:formula "Einheitspreis = (Lohnkosten + Materialkosten + Gerätekosten) × (1 + Zuschlagssatz)" ;
+    mp:operand aus:Lohnkosten , aus:Materialkosten , aus:Geraetekosten , aus:Zuschlagssatz .
+
+aus:R_Positionsbetrag a mp:Calculation ;
+    rdfs:label "Positionsbetrag"@de ;
+    mp:formula "Positionsbetrag = Menge × Einheitspreis" ;
+    mp:operand aus:Menge , aus:Einheitspreis .
+
+aus:R_SummeNetto a mp:Calculation ;
+    rdfs:label "Angebotssumme netto"@de ;
+    mp:formula "Angebotssumme netto = Σ Positionsbetrag × (1 − Nachlasssatz)" ;
+    mp:operand aus:Positionsbetrag , aus:Nachlasssatz .
+
+aus:R_SummeBrutto a mp:Calculation ;
+    rdfs:label "Angebotssumme brutto"@de ;
+    mp:formula "Angebotssumme brutto = Angebotssumme netto × (1 + Mehrwertsteuersatz)" ;
+    mp:operand aus:AngebotssummeNetto , aus:Mehrwertsteuersatz .
+
+aus:R_AbweichungMedian a mp:Calculation ;
+    rdfs:label "Abweichung vom Median"@de ;
+    mp:formula "Abweichung = (Einheitspreis − Median der Einheitspreise aller Bieter) ÷ Median" ;
+    mp:operand aus:Einheitspreis .
+
+# ---------------------------------------------------------------- Engines
+
+aus:E_Angebotserstellung a mp:Engine ;
+    rdfs:label "Engine Angebotserstellung"@de ;
+    skos:definition "Leitet Einheitspreise aus Kalkulationsansätzen her und summiert das Angebot."@de ;
+    mp:supportsStep aus:S06_Kalkulieren , aus:S07_AngebotErstellen ;
+    mp:engineInput aus:Leistungsverzeichnis , aus:Kalkulation ;
+    mp:engineOutput aus:Angebot ;
+    mp:appliesCalculation aus:R_Lohnkosten , aus:R_Einheitspreis , aus:R_Positionsbetrag , aus:R_SummeNetto , aus:R_SummeBrutto ;
+    mp:implementedIn "mapact.engines.angebotserstellung" .
+
+aus:E_Angebotsvergleich a mp:Engine ;
+    rdfs:label "Engine Angebotsvergleich"@de ;
+    skos:definition "Prüft Angebote auf Vollständigkeit und stellt sie je Position und gesamt gegenüber."@de ;
+    mp:supportsStep aus:S08_AngebotePruefen , aus:S09_AngeboteVergleichen ;
+    mp:engineInput aus:Leistungsverzeichnis , aus:Angebot ;
+    mp:engineOutput aus:Preisspiegel ;
+    mp:appliesCalculation aus:R_Positionsbetrag , aus:R_SummeNetto , aus:R_AbweichungMedian ;
+    mp:checksCondition aus:C_AngebotVollstaendig , aus:C_LVUnveraendert ;
+    mp:implementedIn "mapact.engines.angebotsvergleich" .

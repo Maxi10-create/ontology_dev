@@ -1,0 +1,12 @@
+# KF3: Welche Informationen gehen in einen Schritt ein, und welche entstehen dort?
+PREFIX mp:    <https://w3id.org/mapact/core#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pplan: <http://purl.org/net/p-plan#>
+SELECT DISTINCT ?schritt ?richtung ?information WHERE {
+  ?s a mp:Step ; rdfs:label ?schritt .
+  { ?s mp:hasInput ?i . BIND ("Eingabe" AS ?richtung) }
+  UNION
+  { ?s mp:hasOutput ?i . BIND ("Ausgabe" AS ?richtung) }
+  ?i rdfs:label ?information .
+}
+ORDER BY ?s ?richtung
