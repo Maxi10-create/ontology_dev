@@ -1,0 +1,289 @@
+@prefix mp:      <https://w3id.org/mapact/core#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix pplan:   <http://purl.org/net/p-plan#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Mapact-Kern: domänenneutrales Vokabular, um Prozesse von außen zu beschreiben.
+# Modellebene (wie ein Prozess abläuft) und Fallebene (ein konkreter Durchlauf) sind getrennt.
+# Ausdrucksstärke: OWL 2 RL. Ausrichtung an P-Plan (Pläne, Schritte, Variablen) und PROV-O (Fälle).
+
+<https://w3id.org/mapact/core>
+    a owl:Ontology ;
+    rdfs:label "Mapact Kernontologie"@de , "Mapact core ontology"@en ;
+    dcterms:description "Domänenneutrale Begriffe für Prozesse, Rollen, Informationsobjekte, Werte, Rechenregeln, Bedingungen und Engines, beschrieben aus unabhängiger Außensicht."@de ;
+    owl:versionInfo "0.1.0" .
+
+# ---------------------------------------------------------------- Modellebene: Klassen
+
+mp:ProcessModel a owl:Class ;
+    rdfs:subClassOf pplan:Plan ;
+    rdfs:label "Prozessmodell"@de , "process model"@en ;
+    skos:definition "Beschreibung, wie eine Art von Vorgang abläuft, unabhängig von einem konkreten Fall."@de .
+
+mp:Phase a owl:Class ;
+    rdfs:label "Phase"@de , "phase"@en ;
+    skos:definition "Abschnitt eines Prozessmodells, der zusammengehörige Schritte bündelt."@de .
+
+mp:Step a owl:Class ;
+    rdfs:subClassOf pplan:Step ;
+    rdfs:label "Schritt"@de , "step"@en ;
+    skos:definition "Tätigkeit im Prozessmodell, die eine Rolle ausführt und die Informationsobjekte verbraucht oder erzeugt."@de .
+
+mp:Decision a owl:Class ;
+    rdfs:subClassOf mp:Step ;
+    rdfs:label "Entscheidung"@de , "decision"@en ;
+    skos:definition "Schritt, nach dem der Prozess je nach Ergebnis auf verschiedenen Wegen weiterläuft."@de .
+
+mp:Transition a owl:Class ;
+    rdfs:label "Übergang"@de , "transition"@en ;
+    skos:definition "Gerichtete Verbindung von einem Schritt zum nächsten, optional mit Bedingung."@de .
+
+mp:Role a owl:Class ;
+    rdfs:subClassOf prov:Role ;
+    rdfs:label "Rolle"@de , "role"@en ;
+    skos:definition "Funktion, die eine Person oder Organisation im Prozess einnimmt, unabhängig davon, wer sie konkret ausfüllt."@de .
+
+mp:InformationObject a owl:Class ;
+    rdfs:subClassOf pplan:Variable ;
+    rdfs:label "Informationsobjekt"@de , "information object"@en ;
+    skos:definition "Dokument oder Datensatz, der in einem Schritt entsteht oder gebraucht wird."@de .
+
+mp:ValueType a owl:Class ;
+    rdfs:label "Wertgröße"@de , "value type"@en ;
+    skos:definition "Art von Zahl, die an einem Informationsobjekt hängt, zum Beispiel Einheitspreis oder Menge."@de .
+
+mp:Calculation a owl:Class ;
+    rdfs:label "Rechenregel"@de , "calculation"@en ;
+    skos:definition "Regel, nach der eine Wertgröße aus anderen Wertgrößen entsteht."@de .
+
+mp:Condition a owl:Class ;
+    rdfs:label "Bedingung"@de , "condition"@en ;
+    skos:definition "Prüfbare Aussage, die erfüllt sein muss, damit ein Schritt als abgeschlossen gilt."@de .
+
+mp:Engine a owl:Class ;
+    rdfs:label "Engine"@de , "engine"@en ;
+    skos:definition "Deterministisches Werkzeug, das einen oder mehrere Schritte unterstützt, etwa durch Rechnen, Prüfen oder Vergleichen."@de .
+
+# ---------------------------------------------------------------- Fallebene: Klassen (Haken für später)
+
+mp:Case a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Fall"@de , "case"@en ;
+    skos:definition "Ein konkreter Durchlauf eines Prozessmodells."@de .
+
+mp:StepExecution a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Schrittausführung"@de , "step execution"@en ;
+    skos:definition "Die tatsächliche Ausführung eines Schritts in einem Fall."@de .
+
+# ---------------------------------------------------------------- Disjunktheit
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( mp:ProcessModel mp:Phase mp:Step mp:Transition mp:Role
+                  mp:InformationObject mp:ValueType mp:Calculation mp:Condition mp:Engine ) .
+
+# ---------------------------------------------------------------- Struktur
+
+mp:hasPhase a owl:ObjectProperty ;
+    rdfs:label "hat Phase"@de ;
+    rdfs:domain mp:ProcessModel ;
+    rdfs:range mp:Phase .
+
+mp:phaseOrder a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Reihenfolge"@de ;
+    rdfs:domain mp:Phase ;
+    rdfs:range xsd:integer .
+
+mp:inPhase a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "gehört zu Phase"@de ;
+    rdfs:domain mp:Step ;
+    rdfs:range mp:Phase .
+
+mp:performedBy a owl:ObjectProperty ;
+    rdfs:label "ausgeführt von"@de ;
+    rdfs:domain mp:Step ;
+    rdfs:range mp:Role .
+
+mp:decidedBy a owl:ObjectProperty ;
+    rdfs:subPropertyOf mp:performedBy ;
+    rdfs:label "entschieden von"@de ;
+    rdfs:domain mp:Decision ;
+    rdfs:range mp:Role .
+
+mp:hasInput a owl:ObjectProperty ;
+    rdfs:label "braucht"@de ;
+    rdfs:domain mp:Step ;
+    rdfs:range mp:InformationObject .
+
+mp:hasOutput a owl:ObjectProperty ;
+    rdfs:label "erzeugt"@de ;
+    rdfs:domain mp:Step ;
+    rdfs:range mp:InformationObject .
+
+mp:hasPart a owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:label "besteht aus"@de ;
+    rdfs:domain mp:InformationObject ;
+    rdfs:range mp:InformationObject .
+
+mp:completionCondition a owl:ObjectProperty ;
+    rdfs:label "abgeschlossen wenn"@de ;
+    rdfs:domain mp:Step ;
+    rdfs:range mp:Condition .
+
+# ---------------------------------------------------------------- Ablauf
+
+mp:fromStep a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "von"@de ;
+    rdfs:domain mp:Transition ;
+    rdfs:range mp:Step .
+
+mp:toStep a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "nach"@de ;
+    rdfs:domain mp:Transition ;
+    rdfs:range mp:Step .
+
+mp:guard a owl:DatatypeProperty ;
+    rdfs:label "Bedingung des Übergangs"@de ;
+    rdfs:domain mp:Transition ;
+    rdfs:range xsd:string .
+
+mp:isLoopBack a owl:DatatypeProperty ;
+    rdfs:label "führt zurück"@de ;
+    rdfs:domain mp:Transition ;
+    rdfs:range xsd:boolean .
+
+# ---------------------------------------------------------------- Werte und Rechenregeln
+
+mp:hasValueType a owl:ObjectProperty ;
+    rdfs:label "trägt Wert"@de ;
+    rdfs:domain mp:InformationObject ;
+    rdfs:range mp:ValueType .
+
+mp:unit a owl:DatatypeProperty ;
+    rdfs:label "Einheit"@de ;
+    rdfs:domain mp:ValueType ;
+    rdfs:range xsd:string .
+
+mp:derivedBy a owl:ObjectProperty ;
+    rdfs:label "berechnet durch"@de ;
+    rdfs:domain mp:ValueType ;
+    rdfs:range mp:Calculation .
+
+mp:operand a owl:ObjectProperty ;
+    rdfs:label "verwendet"@de ;
+    rdfs:domain mp:Calculation ;
+    rdfs:range mp:ValueType .
+
+mp:formula a owl:DatatypeProperty ;
+    rdfs:label "Formel"@de ;
+    rdfs:domain mp:Calculation ;
+    rdfs:range xsd:string .
+
+mp:dependsOn a owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:label "hängt ab von"@de ;
+    rdfs:domain mp:ValueType ;
+    rdfs:range mp:ValueType ;
+    owl:propertyChainAxiom ( mp:derivedBy mp:operand ) .
+
+# ---------------------------------------------------------------- Engines
+
+mp:supportsStep a owl:ObjectProperty ;
+    rdfs:label "unterstützt"@de ;
+    rdfs:domain mp:Engine ;
+    rdfs:range mp:Step .
+
+mp:engineInput a owl:ObjectProperty ;
+    rdfs:label "liest"@de ;
+    rdfs:domain mp:Engine ;
+    rdfs:range mp:InformationObject .
+
+mp:engineOutput a owl:ObjectProperty ;
+    rdfs:label "liefert"@de ;
+    rdfs:domain mp:Engine ;
+    rdfs:range mp:InformationObject .
+
+mp:appliesCalculation a owl:ObjectProperty ;
+    rdfs:label "wendet an"@de ;
+    rdfs:domain mp:Engine ;
+    rdfs:range mp:Calculation .
+
+mp:checksCondition a owl:ObjectProperty ;
+    rdfs:label "prüft"@de ;
+    rdfs:domain mp:Engine ;
+    rdfs:range mp:Condition .
+
+mp:implementedIn a owl:DatatypeProperty ;
+    rdfs:label "implementiert in"@de ;
+    rdfs:domain mp:Engine ;
+    rdfs:range xsd:string .
+
+# ---------------------------------------------------------------- Fallebene: Eigenschaften
+
+mp:instanceOf a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Durchlauf von"@de ;
+    rdfs:domain mp:Case ;
+    rdfs:range mp:ProcessModel .
+
+mp:executesStep a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "führt aus"@de ;
+    rdfs:domain mp:StepExecution ;
+    rdfs:range mp:Step .
+
+mp:ofCase a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "gehört zu Fall"@de ;
+    rdfs:domain mp:StepExecution ;
+    rdfs:range mp:Case .
+
+# ---------------------------------------------------------------- Wissensherkunft und Experten-Review
+# Expertenwissen kommt in einem späteren Schritt dazu. Bis dahin ist jedes Modellelement ein Entwurf;
+# bestätigt ist nur, was ausdrücklich mp:reviewStatus mp:ExperteBestaetigt trägt.
+
+mp:ReviewStatusScheme a skos:ConceptScheme ;
+    rdfs:label "Review-Status"@de .
+
+mp:Entwurf a skos:Concept ; skos:inScheme mp:ReviewStatusScheme ;
+    skos:prefLabel "Entwurf"@de ;
+    skos:definition "Aus Daten, Text oder Modellierung vorgeschlagen, noch nicht von einem Experten geprüft."@de .
+mp:ExperteBestaetigt a skos:Concept ; skos:inScheme mp:ReviewStatusScheme ;
+    skos:prefLabel "Vom Experten bestätigt"@de .
+mp:ExperteKorrigiert a skos:Concept ; skos:inScheme mp:ReviewStatusScheme ;
+    skos:prefLabel "Vom Experten korrigiert"@de .
+mp:Verworfen a skos:Concept ; skos:inScheme mp:ReviewStatusScheme ;
+    skos:prefLabel "Verworfen"@de .
+
+mp:KnowledgeSourceScheme a skos:ConceptScheme ;
+    rdfs:label "Wissensquelle"@de .
+
+mp:AusDaten a skos:Concept ; skos:inScheme mp:KnowledgeSourceScheme ;
+    skos:prefLabel "Explizit aus Daten"@de .
+mp:AusText a skos:Concept ; skos:inScheme mp:KnowledgeSourceScheme ;
+    skos:prefLabel "Implizit aus Text abgeleitet"@de .
+mp:Expertenwissen a skos:Concept ; skos:inScheme mp:KnowledgeSourceScheme ;
+    skos:prefLabel "Expertenwissen"@de .
+mp:Annahme a skos:Concept ; skos:inScheme mp:KnowledgeSourceScheme ;
+    skos:prefLabel "Modellierungsannahme"@de ;
+    skos:definition "Allgemeines Fachwissen ohne Beleg im konkreten Fall; muss vom Experten bestätigt werden."@de .
+
+mp:reviewStatus a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Review-Status"@de ;
+    rdfs:range skos:Concept .
+
+mp:knowledgeSource a owl:ObjectProperty ;
+    rdfs:label "Wissensquelle"@de ;
+    rdfs:range skos:Concept .
+
+mp:reviewedBy a owl:ObjectProperty ;
+    rdfs:label "geprüft von"@de ;
+    rdfs:range prov:Agent .
+
+mp:reviewedOn a owl:DatatypeProperty ;
+    rdfs:label "geprüft am"@de ;
+    rdfs:range xsd:date .
+
+mp:reviewNote a owl:DatatypeProperty ;
+    rdfs:label "Review-Notiz"@de ;
+    rdfs:range xsd:string .

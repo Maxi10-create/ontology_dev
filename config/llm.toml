@@ -1,0 +1,7 @@
+# Lokales Sprachmodell für alles, was echte Daten berührt (Extraktion, Begriffsvorschläge).
+# Cloud-Endpunkte werden von mapact.llm.assert_local abgelehnt.
+endpoint = "http://localhost:11434"
+model = "qwen3:14b"
+timeout_s = 300
+# Weitere Rechner im eigenen Netz, falls das Modell nicht auf diesem Gerät läuft:
+allowed_hosts = []

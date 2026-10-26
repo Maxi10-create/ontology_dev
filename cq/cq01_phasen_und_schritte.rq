@@ -1,0 +1,11 @@
+# KF1: Welche Phasen und Schritte hat der Prozess, und in welcher Reihenfolge?
+PREFIX mp:    <https://w3id.org/mapact/core#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pplan: <http://purl.org/net/p-plan#>
+SELECT DISTINCT ?prozess ?reihenfolge ?phase ?schritt ?naechsterSchritt WHERE {
+  ?p a mp:ProcessModel ; rdfs:label ?prozess ; mp:hasPhase ?ph .
+  ?ph rdfs:label ?phase ; mp:phaseOrder ?reihenfolge .
+  ?s mp:inPhase ?ph ; pplan:isStepOfPlan ?p ; rdfs:label ?schritt .
+  OPTIONAL { ?t mp:fromStep ?s ; mp:toStep ?n . ?n rdfs:label ?naechsterSchritt . }
+}
+ORDER BY ?reihenfolge ?s

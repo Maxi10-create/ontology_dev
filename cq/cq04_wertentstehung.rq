@@ -1,0 +1,13 @@
+# KF4: Wie entsteht ein Wert, und aus welchen Bestandteilen und Rechenregeln setzt er sich zusammen?
+# Beispiel: alle Wertgrößen, von denen die Angebotssumme brutto direkt oder indirekt abhängt.
+PREFIX mp:    <https://w3id.org/mapact/core#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pplan: <http://purl.org/net/p-plan#>
+PREFIX aus: <https://w3id.org/mapact/ausschreibung#>
+SELECT DISTINCT ?wert ?regel ?formel ?bestandteil WHERE {
+  aus:AngebotssummeBrutto (mp:derivedBy/mp:operand)* ?v .
+  ?v rdfs:label ?wert ; mp:derivedBy ?r .
+  ?r rdfs:label ?regel ; mp:formula ?formel ; mp:operand ?o .
+  ?o rdfs:label ?bestandteil .
+}
+ORDER BY ?wert ?bestandteil

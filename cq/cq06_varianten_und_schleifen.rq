@@ -1,0 +1,11 @@
+# KF6: Welche Varianten und Schleifen gibt es (Rückfragen, Nachverhandlung, neue Versionen)?
+PREFIX mp:    <https://w3id.org/mapact/core#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pplan: <http://purl.org/net/p-plan#>
+SELECT DISTINCT ?von ?nach ?bedingung ?zurueck WHERE {
+  ?t a mp:Transition ; mp:fromStep ?f ; mp:toStep ?n ; mp:guard ?bedingung .
+  ?f rdfs:label ?von . ?n rdfs:label ?nach .
+  OPTIONAL { ?t mp:isLoopBack ?l }
+  BIND (COALESCE(?l, false) AS ?zurueck)
+}
+ORDER BY ?f

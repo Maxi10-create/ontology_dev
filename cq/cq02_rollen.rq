@@ -1,0 +1,10 @@
+# KF2: Welche Rolle führt welchen Schritt aus, und wer entscheidet?
+PREFIX mp:    <https://w3id.org/mapact/core#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pplan: <http://purl.org/net/p-plan#>
+SELECT DISTINCT ?schritt ?rolle ?entscheidet WHERE {
+  ?s rdfs:label ?schritt ; mp:performedBy|mp:decidedBy ?r .
+  ?r rdfs:label ?rolle .
+  BIND (EXISTS { ?s mp:decidedBy ?r } AS ?entscheidet)
+}
+ORDER BY ?s

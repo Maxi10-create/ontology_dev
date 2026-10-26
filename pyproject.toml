@@ -1,0 +1,16 @@
+[project]
+name = "mapact-ontology"
+version = "0.1.0"
+description = "Prozess-Ontologie, Wissensgraph und Engines für Mapact"
+requires-python = ">=3.11"
+dependencies = ["rdflib>=7.0", "pyshacl>=0.26", "owlrl>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools]
+packages = ["mapact", "mapact.engines"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
