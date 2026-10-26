@@ -39,3 +39,10 @@ def test_kf6_nachverhandlung_fuehrt_zurueck_zur_pruefung(g):
 def test_kf7_beide_engines_verankert(g):
     engines = {r["engine"] for r in ask("cq07_engines", g)}
     assert engines == {"Engine Angebotserstellung", "Engine Angebotsvergleich"}
+
+
+def test_kf8_alles_offen_bis_experte_bestaetigt(g):
+    rows = ask("cq08_offene_expertenpruefung", g)
+    annahmen = {r["element"] for r in rows if r["nurAnnahme"] == "true"}
+    assert annahmen == {"Einheitspreis aus Kalkulation", "Zuschlagssatz"}
+    assert any(r["element"] == "Kalkulieren" for r in rows)

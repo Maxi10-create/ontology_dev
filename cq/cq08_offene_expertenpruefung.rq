@@ -1,0 +1,11 @@
+# KF8: Welche Modellelemente sind noch nicht vom Experten bestätigt, und welche beruhen nur auf Annahmen?
+PREFIX mp:   <https://w3id.org/mapact/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT DISTINCT ?element ?art ?nurAnnahme WHERE {
+  VALUES ?typ { mp:Phase mp:Step mp:Role mp:InformationObject mp:ValueType mp:Calculation mp:Condition mp:Engine }
+  ?e a ?typ ; rdfs:label ?element .
+  ?typ rdfs:label ?art . FILTER (lang(?art) = "de")
+  FILTER NOT EXISTS { ?e mp:reviewStatus mp:ExperteBestaetigt }
+  BIND (EXISTS { ?e mp:knowledgeSource mp:Annahme } AS ?nurAnnahme)
+}
+ORDER BY DESC(?nurAnnahme) ?art ?element

@@ -237,3 +237,53 @@ mp:ofCase a owl:ObjectProperty , owl:FunctionalProperty ;
     rdfs:label "gehört zu Fall"@de ;
     rdfs:domain mp:StepExecution ;
     rdfs:range mp:Case .
+
+# ---------------------------------------------------------------- Wissensherkunft und Experten-Review
+# Expertenwissen kommt in einem späteren Schritt dazu. Bis dahin ist jedes Modellelement ein Entwurf;
+# bestätigt ist nur, was ausdrücklich mp:reviewStatus mp:ExperteBestaetigt trägt.
+
+mp:ReviewStatusScheme a skos:ConceptScheme ;
+    rdfs:label "Review-Status"@de .
+
+mp:Entwurf a skos:Concept ; skos:inScheme mp:ReviewStatusScheme ;
+    skos:prefLabel "Entwurf"@de ;
+    skos:definition "Aus Daten, Text oder Modellierung vorgeschlagen, noch nicht von einem Experten geprüft."@de .
+mp:ExperteBestaetigt a skos:Concept ; skos:inScheme mp:ReviewStatusScheme ;
+    skos:prefLabel "Vom Experten bestätigt"@de .
+mp:ExperteKorrigiert a skos:Concept ; skos:inScheme mp:ReviewStatusScheme ;
+    skos:prefLabel "Vom Experten korrigiert"@de .
+mp:Verworfen a skos:Concept ; skos:inScheme mp:ReviewStatusScheme ;
+    skos:prefLabel "Verworfen"@de .
+
+mp:KnowledgeSourceScheme a skos:ConceptScheme ;
+    rdfs:label "Wissensquelle"@de .
+
+mp:AusDaten a skos:Concept ; skos:inScheme mp:KnowledgeSourceScheme ;
+    skos:prefLabel "Explizit aus Daten"@de .
+mp:AusText a skos:Concept ; skos:inScheme mp:KnowledgeSourceScheme ;
+    skos:prefLabel "Implizit aus Text abgeleitet"@de .
+mp:Expertenwissen a skos:Concept ; skos:inScheme mp:KnowledgeSourceScheme ;
+    skos:prefLabel "Expertenwissen"@de .
+mp:Annahme a skos:Concept ; skos:inScheme mp:KnowledgeSourceScheme ;
+    skos:prefLabel "Modellierungsannahme"@de ;
+    skos:definition "Allgemeines Fachwissen ohne Beleg im konkreten Fall; muss vom Experten bestätigt werden."@de .
+
+mp:reviewStatus a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Review-Status"@de ;
+    rdfs:range skos:Concept .
+
+mp:knowledgeSource a owl:ObjectProperty ;
+    rdfs:label "Wissensquelle"@de ;
+    rdfs:range skos:Concept .
+
+mp:reviewedBy a owl:ObjectProperty ;
+    rdfs:label "geprüft von"@de ;
+    rdfs:range prov:Agent .
+
+mp:reviewedOn a owl:DatatypeProperty ;
+    rdfs:label "geprüft am"@de ;
+    rdfs:range xsd:date .
+
+mp:reviewNote a owl:DatatypeProperty ;
+    rdfs:label "Review-Notiz"@de ;
+    rdfs:range xsd:string .

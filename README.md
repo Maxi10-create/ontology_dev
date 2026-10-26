@@ -8,6 +8,7 @@ Prozess-Ontologie, Wissensgraph und Engines für **Mapact**: Abläufe kleiner un
 - **Abstrakt zuerst.** Das Modell enthält keine Firmen, Projekte oder Beträge. Konkrete Fälle eines Betriebs kommen später über die Fallebene (`mp:Case`, `mp:StepExecution`).
 - **Nur lokale LLMs für Daten.** `mapact.llm` lehnt jeden nicht lokalen Endpunkt ab. Echte Dokumente liegen nur in `data/` und werden nie eingecheckt.
 - **Werte haben eine Herkunft.** Jede Wertgröße zeigt, aus welchen anderen Werten und nach welcher Regel sie entsteht.
+- **Expertenwissen kommt später.** Alles ist Entwurf, bis ein Experte es mit `mp:reviewStatus mp:ExperteBestaetigt`, Prüfer und Datum bestätigt; Annahmen ohne Beleg tragen `mp:knowledgeSource mp:Annahme`.
 - **Engines sind deterministisch.** Vergleichen, Prüfen und Rechnen sind feste Programme, die im Modell verankert sind; ein LLM schlägt höchstens vor.
 
 ## Aufbau
@@ -20,7 +21,8 @@ Prozess-Ontologie, Wissensgraph und Engines für **Mapact**: Abläufe kleiner un
 | `cq/` | Kompetenzfragen als SPARQL |
 | `mapact/engines/` | Engine Angebotserstellung (Kalkulation, Summen) und Engine Angebotsvergleich (Vollständigkeit, LV-Abweichungen, Preisspiegel) |
 | `mapact/llm.py`, `config/llm.toml` | Zugang zum lokalen Modell (Ollama) mit Sperre gegen Cloud-Endpunkte |
-| `tests/` | Syntax, Reasoner, SHACL, Kompetenzfragen, Engines, LLM-Sperre |
+| `mapact/visualize.py`, `docs/diagramme.md` | Prozessablauf und Wertentstehung als Mermaid, direkt aus der Ontologie erzeugt |
+| `tests/` | Syntax, Reasoner, SHACL, Kompetenzfragen, Engines, LLM-Sperre, aktuelle Diagramme |
 
 Wiederverwendet werden [P-Plan](http://purl.org/net/p-plan) für Pläne und Schritte, [PROV-O](https://www.w3.org/TR/prov-o/) für Fälle und Herkunft und SKOS für Begriffe und Synonyme. Ausdrucksstärke: OWL 2 RL.
 
@@ -35,6 +37,7 @@ Wiederverwendet werden [P-Plan](http://purl.org/net/p-plan) für Pläne und Schr
 | 5 | Welche Bedingungen müssen erfüllt sein, damit ein Schritt abgeschlossen ist? | `cq05_abschlussbedingungen.rq` |
 | 6 | Welche Varianten und Schleifen gibt es? | `cq06_varianten_und_schleifen.rq` |
 | 7 | Welche Engine unterstützt welchen Schritt, mit welchen Ein- und Ausgaben? | `cq07_engines.rq` |
+| 8 | Welche Modellelemente sind noch nicht vom Experten bestätigt, und welche beruhen nur auf Annahmen? | `cq08_offene_expertenpruefung.rq` |
 
 ## Benutzen
 
@@ -42,13 +45,14 @@ Wiederverwendet werden [P-Plan](http://purl.org/net/p-plan) für Pläne und Schr
 pip install -e ".[dev]"
 pytest -q                 # alle Prüfungen
 python -m mapact.graph    # Kompetenzfragen beantworten
+python -m mapact.visualize  # Diagramme in docs/ neu erzeugen
 ```
 
 Für die spätere Arbeit mit echten Daten: [Ollama](https://ollama.com) installieren, das Modell aus `config/llm.toml` laden (`ollama pull qwen3:14b`).
 
 ## Nächste Schritte
 
-1. Prozessmodell mit einem Fachexperten durchgehen (Schritte, Rollen, Kalkulationsschema).
+1. Experten-Review: Prozessmodell und Kalkulationsschema mit einem Fachexperten durchgehen und den Review-Status setzen.
 2. Fallebene ausbauen und einen anonymisierten Fall lokal einlesen.
 3. Phase 5 (Ausführung, Nachträge, Abrechnung) modellieren.
 4. Zweiten Prozess eines Handwerksbetriebs modellieren und prüfen, ob der Kern trägt.

@@ -92,3 +92,32 @@ mps:EngineShape a sh:NodeShape ;
     sh:property [ sh:path mp:supportsStep ; sh:minCount 1 ; sh:class mp:Step ] ,
                 [ sh:path mp:implementedIn ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ,
                 [ sh:path mp:engineOutput ; sh:minCount 1 ; sh:class mp:InformationObject ] .
+
+mps:ReviewShape a sh:NodeShape ;
+    sh:targetSubjectsOf mp:reviewStatus ;
+    sh:property [
+        sh:path mp:reviewStatus ;
+        sh:maxCount 1 ;
+        sh:in ( mp:Entwurf mp:ExperteBestaetigt mp:ExperteKorrigiert mp:Verworfen ) ;
+        sh:message "Unbekannter Review-Status."@de
+    ] .
+
+mps:ConfirmedShape a sh:NodeShape ;
+    sh:targetSubjectsOf mp:reviewStatus ;
+    sh:sparql [
+        sh:message "Bestätigte oder korrigierte Elemente brauchen Prüfer und Datum."@de ;
+        sh:select """
+            PREFIX mp: <https://w3id.org/mapact/core#>
+            SELECT $this WHERE {
+                $this mp:reviewStatus ?s .
+                FILTER (?s IN (mp:ExperteBestaetigt, mp:ExperteKorrigiert))
+                FILTER NOT EXISTS { $this mp:reviewedBy ?p ; mp:reviewedOn ?d }
+            }"""
+    ] .
+
+mps:KnowledgeSourceShape a sh:NodeShape ;
+    sh:targetSubjectsOf mp:knowledgeSource ;
+    sh:property [
+        sh:path mp:knowledgeSource ;
+        sh:in ( mp:AusDaten mp:AusText mp:Expertenwissen mp:Annahme )
+    ] .

@@ -8,7 +8,8 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
 # Domänenmodul: Ausschreibungs- und Angebotsprozess für Bauleistungen, aus neutraler Außensicht.
-# Abstrakt: keine Firmen, keine Beträge, keine Projektdaten. Konkrete Fälle kommen später
+# Abstrakt: keine Firmen, keine Beträge, keine Projektdaten. Alles ist Entwurf, bis ein Experte es
+# bestätigt (mp:reviewStatus); Elemente ohne Beleg tragen mp:knowledgeSource mp:Annahme. Konkrete Fälle kommen später
 # über die Fallebene (mp:Case) und werden nur mit lokalen LLMs verarbeitet.
 
 <https://w3id.org/mapact/ausschreibung>
@@ -253,6 +254,8 @@ aus:Materialkosten a mp:ValueType ; rdfs:label "Materialkosten"@de ; mp:unit "EU
 aus:Geraetekosten a mp:ValueType ; rdfs:label "Gerätekosten"@de ; mp:unit "EUR je Einheit" .
 aus:Zuschlagssatz a mp:ValueType ;
     rdfs:label "Zuschlagssatz"@de ;
+    mp:knowledgeSource mp:Annahme ;
+    mp:reviewStatus mp:Entwurf ;
     skos:definition "Aufschlag für Baustellengemeinkosten, allgemeine Geschäftskosten, Wagnis und Gewinn."@de ;
     mp:unit "Anteil (0–1)" .
 aus:Einheitspreis a mp:ValueType ; rdfs:label "Einheitspreis"@de ; skos:altLabel "EP"@de ; mp:unit "EUR je Einheit" ; mp:derivedBy aus:R_Einheitspreis .
@@ -274,6 +277,8 @@ aus:R_Lohnkosten a mp:Calculation ;
 aus:R_Einheitspreis a mp:Calculation ;
     rdfs:label "Einheitspreis aus Kalkulation"@de ;
     rdfs:comment "Vereinfachtes Zuschlagsschema; vom Fachexperten zu bestätigen."@de ;
+    mp:knowledgeSource mp:Annahme ;
+    mp:reviewStatus mp:Entwurf ;
     mp:formula "Einheitspreis = (Lohnkosten + Materialkosten + Gerätekosten) × (1 + Zuschlagssatz)" ;
     mp:operand aus:Lohnkosten , aus:Materialkosten , aus:Geraetekosten , aus:Zuschlagssatz .
 
